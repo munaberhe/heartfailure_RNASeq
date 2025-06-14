@@ -4,7 +4,6 @@ This repository demonstrates a simple, reproducible RNA-Seq analysis pipeline co
 
 ## Project Structure
 
-
 ```
 HeartFailure_RNASeq/
 ├── data/              # Raw and trimmed FASTQ files
@@ -14,16 +13,6 @@ HeartFailure_RNASeq/
 ├── figures/           # Final plots (MA plot, PCA plot)
 └── README.md          # Project description and instructions
 ```
-
-```HeartFailure_RNASeq/
-├── data/ # Raw and trimmed FASTQ files (local only, ignored)
-├── qc/ # Quality control reports
-├── ref/ # Reference genome and GTF (local only, ignored)
-├── results/ # STAR alignments, featureCounts output, DESeq2 results, plots
-├── scripts/ # Shell and R scripts for each step
-├── HeartFailure_RNASeq.Rproj # RStudio project file
-└── README.md # Project description and instructions```
-
 
 ## Workflow Overview
 
