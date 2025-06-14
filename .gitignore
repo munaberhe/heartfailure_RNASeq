@@ -1,0 +1,13 @@
+# Ignore big raw and intermediate files
+data/
+qc/
+results/star/
+results/featurecounts/
+ref/star_index/
+ref/*.fa.gz
+
+# RStudio & system junk
+.Rproj.user/
+.Rhistory
+.RData
+.DS_Store
