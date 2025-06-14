@@ -5,9 +5,11 @@ results/star/
 results/featurecounts/
 ref/star_index/
 ref/*.fa.gz
+ref/*.gtf
 
 # RStudio & system junk
 .Rproj.user/
 .Rhistory
 .RData
 .DS_Store
+
