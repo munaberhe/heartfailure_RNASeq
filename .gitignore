@@ -13,3 +13,4 @@ ref/*.gtf
 .RData
 .DS_Store
 
+ref/*.gtf
