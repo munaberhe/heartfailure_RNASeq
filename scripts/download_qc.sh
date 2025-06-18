@@ -1,32 +1,48 @@
-#!/bin/bash
+# =============================================
+# Download + QC script for Heart Failure RNA-seq
+# Handles mixed paired-end and single-end runs
+# =============================================
 
-SRR_IDS=(
+# Make folders if they don't exist
+mkdir -p data/raw_fastq
+mkdir -p data/trimmed
+
+# === Define your samples ===
+PAIRED_SAMPLES=(
     SRR2131556
+)
+SINGLE_SAMPLES=(
     SRR2131557
 )
 
-mkdir -p data/raw_fastq data/trimmed qc/raw qc/trimmed
-
-echo "Downloading FASTQ files..."
-for SRR in "${SRR_IDS[@]}"
+# === Download & trim PAIRED-END ===
+for SAMPLE in "${PAIRED_SAMPLES[@]}"
 do
-    echo "Fetching $SRR ..."
-    fasterq-dump $SRR -O data/raw_fastq
-done
+    echo "Downloading PAIRED-END $SAMPLE..."
+    fasterq-dump --split-files $SAMPLE -O data/raw_fastq/
 
-echo "Running FastQC..."
-fastqc data/raw_fastq/*.fastq -o qc/raw/
-
-echo "Running fastp trimming..."
-for SRR in "${SRR_IDS[@]}"
-do
+    echo "Running fastp for PAIRED-END $SAMPLE..."
     fastp \
-    -i data/raw_fastq/${SRR}_1.fastq \
-    -I data/raw_fastq/${SRR}_2.fastq \
-    -o data/trimmed/${SRR}_R1.trimmed.fastq.gz \
-    -O data/trimmed/${SRR}_R2.trimmed.fastq.gz \
-    --html qc/trimmed/fastp_${SRR}.html \
-    --thread 4
+      -i data/raw_fastq/${SAMPLE}_1.fastq \
+      -I data/raw_fastq/${SAMPLE}_2.fastq \
+      -o data/trimmed/${SAMPLE}_R1.trimmed.fastq.gz \
+      -O data/trimmed/${SAMPLE}_R2.trimmed.fastq.gz \
+      --detect_adapter_for_pe \
+      --thread 4
 done
 
-echo "✅ Done: Download + QC finished!"
+# === Download & trim SINGLE-END ===
+for SAMPLE in "${SINGLE_SAMPLES[@]}"
+do
+    echo "Downloading SINGLE-END $SAMPLE..."
+    fasterq-dump $SAMPLE -O data/raw_fastq/
+
+    echo "Running fastp for SINGLE-END $SAMPLE..."
+    fastp \
+      -i data/raw_fastq/${SAMPLE}.fastq \
+      -o data/trimmed/${SAMPLE}.trimmed.fastq.gz \
+      --thread 4
+done
+
+echo "✅ DONE: Download + QC finished!"
+EOF

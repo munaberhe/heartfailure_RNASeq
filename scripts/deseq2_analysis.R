@@ -1,65 +1,72 @@
-# =============================================
-# Heart Failure RNA-seq DESeq2 Analysis
-# GSE71613 — Muna's Portfolio Project
-# =============================================
-
+# -------------------------------------------
+# 1. Load libraries
+# -------------------------------------------
 library(DESeq2)
-library(pheatmap)
-library(ggplot2)
 
-# 1) Load counts (skip first comment lines)
-counts <- read.table("results/featurecounts/counts.txt", header=TRUE, row.names=1, comment.char="#")
-# Remove extra columns to keep only counts:
-counts <- counts[, 6:ncol(counts)]
+# -------------------------------------------
+# 2. Load PE counts (HeartFailure)
+# -------------------------------------------
+pe <- read.table("results/featurecounts/pe_counts_FAKE.txt", header=TRUE, skip=1, sep="\t")
 
-# 2) Inspect:
-print(dim(counts))
-print(head(counts))
+# -------------------------------------------
+# 3. Load SE counts (Control)
+# -------------------------------------------
+se <- read.table("results/featurecounts/se_counts_FAKE.txt", header=TRUE, skip=1, sep="\t")
 
-# 3) Build metadata
-# Adjust this to match your samples:
-metadata <- data.frame(
-  row.names = colnames(counts),
-  condition = c("Control", "Failing")
+# -------------------------------------------
+# 4. Combine counts
+# -------------------------------------------
+counts <- data.frame(
+  row.names = pe$Geneid,
+  PE_rep1 = pe[["results.star.SRR2131556_Aligned.sortedByCoord.out.bam"]],
+  PE_rep2 = pe[["results.star.SRR2131556_rep2.bam"]],
+  SE_rep1 = se[["results.star.SRR2131557_Aligned.sortedByCoord.out.bam"]],
+  SE_rep2 = se[["results.star.SRR2131557_rep2.bam"]]
 )
 
-print(metadata)
+# -------------------------------------------
+# 5. Define condition factor
+# -------------------------------------------
+condition <- factor(c("HeartFailure", "HeartFailure", "Control", "Control"))
 
-# 4) Build DESeq2 object
-dds <- DESeqDataSetFromMatrix(countData=counts, colData=metadata, design=~condition)
+# -------------------------------------------
+# 6. Create DESeq2 dataset
+# -------------------------------------------
+dds <- DESeqDataSetFromMatrix(countData = counts,
+                              colData = data.frame(condition),
+                              design = ~ condition)
 
-# Filter low counts
-dds <- dds[ rowSums(counts(dds)) > 10, ]
-
-# 5) Run DESeq2
-dds <- DESeq(dds)
+# -------------------------------------------
+# 7. Use gene-wise dispersions & manual test
+# -------------------------------------------
+dds <- estimateSizeFactors(dds)
+dds <- estimateDispersionsGeneEst(dds)
+dispersions(dds) <- mcols(dds)$dispGeneEst
+dds <- nbinomWaldTest(dds)
 res <- results(dds)
 
-# 6) Export results
-write.csv(as.data.frame(res), file="results/deseq2_results.csv")
+# -------------------------------------------
+# 8. Save results
+# -------------------------------------------
+write.csv(as.data.frame(res), file = "results/deseq2_results.csv")
 
-# 7) PCA
-vsd <- vst(dds)
-png("results/pca_plot.png", width=600, height=600)
+# -------------------------------------------
+# 9. MA plot
+# -------------------------------------------
+pdf("results/MAplot.pdf")
+plotMA(res, main="DESeq2 MA-Plot")
+dev.off()
+
+# -------------------------------------------
+# 10. PCA plot (blind = TRUE for fake replicates)
+# -------------------------------------------
+vsd <- vst(dds, blind=TRUE)
+pdf("results/PCAplot.pdf")
 plotPCA(vsd, intgroup="condition")
 dev.off()
 
-# 8) Volcano
-res$padj[is.na(res$padj)] <- 1
-png("results/volcano_plot.png", width=800, height=600)
-plot(res$log2FoldChange, -log10(res$padj),
-     pch=20,
-     main="Volcano Plot",
-     xlab="Log2 Fold Change",
-     ylab="-Log10 Adjusted P-Value",
-     col=ifelse(res$padj<0.05 & abs(res$log2FoldChange)>1, "red", "grey"))
-dev.off()
+# -------------------------------------------
+# ✅ Done
+# -------------------------------------------
+message("✅ All done! Check results/deseq2_results.csv and plots in results/")
 
-# 9) Heatmap top 20 genes
-top20 <- head(order(res$padj), 20)
-mat <- assay(vsd)[top20, ]
-png("results/heatmap_top20.png", width=800, height=800)
-pheatmap(mat, cluster_rows=TRUE, cluster_cols=TRUE, annotation_col=metadata)
-dev.off()
-
-cat("✅ DESeq2 analysis complete! Results in 'results/' folder.\n")

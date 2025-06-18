@@ -1,16 +1,13 @@
-# Ignore big raw and intermediate files
-data/
+# Ignore large raw and intermediate files
+*.bam
+*.sam
+*.fastq
+*.fastq.gz
+*.html
+*.json
+results/
+ref/
 qc/
-results/star/
-results/featurecounts/
-ref/star_index/
-ref/*.fa.gz
-ref/*.gtf
+Aligned.out.sam
+Log.progress.out
 
-# RStudio & system junk
-.Rproj.user/
-.Rhistory
-.RData
-.DS_Store
-
-ref/*.gtf
