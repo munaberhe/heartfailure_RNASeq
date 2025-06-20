@@ -1,50 +1,91 @@
-# 🫀 Heart Failure RNA-seq Analysis — GSE71613
+# HeartFailure_RNASeq
 
-## 📌 Overview
-This project analyzes RNA-seq data comparing **failing** vs **non-failing human heart tissue**, using GEO dataset **GSE71613**.
-It demonstrates a full pipeline from raw FASTQ download to DESeq2 differential expression analysis.
+This repository demonstrates a simple, reproducible RNA-Seq analysis pipeline comparing heart failure vs. control samples.
 
----
+## Project Structure
 
-## 📂 Project Structure
-
+```
 HeartFailure_RNASeq/
-├── data/ # Raw & trimmed FASTQ files
-├── qc/ # Quality control reports
-├── ref/ # Reference genome FASTA & GTF
-├── results/ # Alignments, counts, plots
-├── scripts/ # Shell & R scripts
-├── HeartFailure_RNASeq.Rproj
-└── README.md
----
+├── data/              # Raw and trimmed FASTQ files
+├── ref/               # Reference genome and annotation (hg38)
+├── scripts/           # Shell and R scripts
+├── results/           # Alignment, counts, and output files
+├── figures/           # Final plots (MA plot, PCA plot)
+└── README.md          # Project description and instructions
+```
 
-## ✅ How to run
+## Workflow Overview
+
+1. **Download & QC**
+   - Download FASTQ files from SRA
+   - Perform quality control and trimming using `fastp`
+
+2. **Alignment**
+   - Align reads to the human genome (hg38) using `STAR`
+   - Sort BAM files with `samtools`
+
+3. **Quantification**
+   - Count gene-level reads with `featureCounts`
+
+4. **Differential Expression**
+   - Analyze counts using `DESeq2` in R
+
+5. **Visualization**
+   - Generate MA Plot and PCA Plot
+
+## Example Plots
+
+Below are the core outputs from the DESeq2 analysis:
+
+**PCA Plot**
+
+![PCA Plot](figures/PCAplot.pdf)
+
+**MA Plot**
+
+![MA Plot](figures/MAplot.pdf)
+
+> Note: On GitHub, PDF images may not render inline. It is recommended to export PNG versions for web previews.
+
+## How to Run
+
+**Requirements:**
+
+- Unix-like shell (Mac/Linux)
+- `conda` environment with `STAR`, `samtools`, `R`, and `featureCounts`
+- ~20 GB free disk space
+
+**Typical commands:**
 
 ```bash
-# 1) Download & QC
-./scripts/download_qc.sh
+# 1) Activate environment
+conda activate bio_env
 
-# 2) Align & count
-./scripts/align_count.sh
+# 2) Download and QC
+bash scripts/download_qc.sh
 
-# 3) DESeq2 analysis
+# 3) Align reads
+bash scripts/align_only.sh
+
+# 4) Count reads
+bash scripts/align_count.sh
+
+# 5) Run DESeq2 analysis
 Rscript scripts/deseq2_analysis.R
+```
 
+## Important
+
+- This example uses duplicated BAM files to simulate biological replicates for demonstration.  
+  For proper statistical power, always use at least three real replicates per condition.
+- Large FASTQ and BAM files are not pushed to GitHub — only scripts, configs, and summary figures are versioned.
+
+## License
+
+This project is licensed under the MIT License.
 
 ---
 
-### 📌 **Step 3 — Save and exit nano**
-
-Inside nano:
-- Press `CTRL + O` → then `Enter` to save
-- Then `CTRL + X` to exit nano
-
----
-
-### 📌 **Step 4 — Add, commit, push**
-
-```bash
-git add README.md
-git commit -m "Add README.md"
-git push
+**Author:** Muna Berhe  
+**Date:** June 2025
 
