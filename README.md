@@ -1,91 +1,41 @@
 # HeartFailure_RNASeq
 
-This repository demonstrates a simple, reproducible RNA-Seq analysis pipeline comparing heart failure vs. control samples.
+RNA-seq differential expression analysis comparing heart failure vs control samples using DESeq2.
 
-## Project Structure
+Started this to get proper hands-on experience with a standard bulk RNA-seq pipeline. Chose heart failure specifically because I've done echo assessments on DCM and HCM patients as a cardiac physiologist — wanted to look at the transcriptomic side of what's happening in those hearts.
 
-```
-HeartFailure_RNASeq/
-├── data/              # Raw and trimmed FASTQ files
-├── ref/               # Reference genome and annotation (hg38)
-├── scripts/           # Shell and R scripts
-├── results/           # Alignment, counts, and output files
-├── figures/           # Final plots (MA plot, PCA plot)
-└── README.md          # Project description and instructions
-```
+## Workflow
 
-## Workflow Overview
+1. Download FASTQ from SRA + QC with `fastp`
+2. Align to hg38 with `STAR`, sort with `samtools`
+3. Count reads with `featureCounts`
+4. Differential expression with `DESeq2`
 
-1. **Download & QC**
-   - Download FASTQ files from SRA
-   - Perform quality control and trimming using `fastp`
+## Setup
 
-2. **Alignment**
-   - Align reads to the human genome (hg38) using `STAR`
-   - Sort BAM files with `samtools`
-
-3. **Quantification**
-   - Count gene-level reads with `featureCounts`
-
-4. **Differential Expression**
-   - Analyze counts using `DESeq2` in R
-
-5. **Visualization**
-   - Generate MA Plot and PCA Plot
-
-## Example Plots
-
-Below are the core outputs from the DESeq2 analysis:
-
-**PCA Plot**
-
-![PCA Plot](figures/PCAplot.pdf)
-
-**MA Plot**
-
-![MA Plot](figures/MAplot.pdf)
-
-> Note: On GitHub, PDF images may not render inline. It is recommended to export PNG versions for web previews.
-
-## How to Run
-
-**Requirements:**
-
-- Unix-like shell (Mac/Linux)
-- `conda` environment with `STAR`, `samtools`, `R`, and `featureCounts`
-- ~20 GB free disk space
-
-**Typical commands:**
+Needs conda with STAR, samtools, R, and featureCounts. ~20 GB free disk space.
 
 ```bash
-# 1) Activate environment
 conda activate bio_env
 
-# 2) Download and QC
 bash scripts/download_qc.sh
-
-# 3) Align reads
 bash scripts/align_only.sh
-
-# 4) Count reads
 bash scripts/align_count.sh
-
-# 5) Run DESeq2 analysis
 Rscript scripts/deseq2_analysis.R
 ```
 
-## Important
+## Outputs
 
-- This example uses duplicated BAM files to simulate biological replicates for demonstration.  
-  For proper statistical power, always use at least three real replicates per condition.
-- Large FASTQ and BAM files are not pushed to GitHub — only scripts, configs, and summary figures are versioned.
+PCA plot and MA plot are in `figures/`.
 
-## License
+![PCA Plot](figures/PCAplot.png)
 
-This project is licensed under the MIT License.
+![MA Plot](figures/MAplot.png)
+
+Note: this uses duplicated BAM files to simulate replicates — only had one sample available for this demo. Real analysis would need at least 3 biological replicates per condition.
+
+Large FASTQ/BAM files are not versioned.
 
 ---
 
-**Author:** Muna Berhe  
-**Date:** June 2025
-
+Author: Muna Berhe

@@ -1,3 +1,7 @@
+.DS_Store
+.Rhistory
+.Rproj.user/
+
 # Ignore large raw and intermediate files
 *.bam
 *.sam
